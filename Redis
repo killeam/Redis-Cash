@@ -1,0 +1,21 @@
+import redis
+import requests
+
+# Подключение к Redis
+cache = redis.StrictRedis(host='localhost', port=6379, db=0)
+
+def get_data(url):
+    # Проверка наличия данных в кэше
+    if cache.exists(url):
+        print("Fetching from cache")
+        return cache.get(url)
+
+    # Получение данных с сервера
+    print("Fetching from the web")
+    response = requests.get(url)
+    cache.setex(url, 3600, response.content)
+    return response.content
+
+url = 'https://example.com'
+data = get_data(url)
+print(data)
